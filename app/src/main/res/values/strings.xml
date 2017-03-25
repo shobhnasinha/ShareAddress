@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Share Address</string>
+    <string name="action_completed">Done</string>
+    <string name="street">Straat</string>
+    <string name="number">Nummer</string>
+    <string name="place">Plaats</string>
+    <string name="postcode">Postcode</string>
+    <string name="go">Go</string>
+</resources>
