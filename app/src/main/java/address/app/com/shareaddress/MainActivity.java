@@ -10,6 +10,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements AddressListContract.AddressList {
 
     private AddressListContract.AddressFetcher addressFetcher;
@@ -75,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements AddressListContra
     }
 
     @Override
-    public void setAddress(Address address) {
+    public void setAddress(ArrayList<Address> address) {
         if (address != null){
             adapter.setData(address);
             adapter.notifyDataSetChanged();

@@ -2,10 +2,12 @@ package address.app.com.shareaddress;
 
 import android.content.Context;
 
+import java.util.ArrayList;
+
 interface AddressListContract {
 
     interface AddressList {
-        void setAddress(Address address);
+        void setAddress(ArrayList<Address> address);
     }
 
     interface AddressFetcher {
@@ -15,7 +17,7 @@ interface AddressListContract {
     void getAddressList(Context context);
 
     interface OnDbRequestCallback {
-        void setData(Address address);
+        void setData(ArrayList<Address> address);
     }
 
 }

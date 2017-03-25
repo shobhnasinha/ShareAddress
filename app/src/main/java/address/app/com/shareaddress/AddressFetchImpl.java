@@ -4,7 +4,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 
-public class AddressFetchImpl implements AddressListContract.AddressFetcher{
+import java.util.ArrayList;
+
+public class AddressFetchImpl implements AddressListContract.AddressFetcher {
     @Override
     public void getAddressFromDb(final Context context, final AddressListContract.OnDbRequestCallback onDbRequestCallback) {
         new AsyncTask<Void, Void, Cursor>() {
@@ -26,16 +28,20 @@ public class AddressFetchImpl implements AddressListContract.AddressFetcher{
             protected void onPostExecute(Cursor cursor) {
                 super.onPostExecute(cursor);
                 if (cursor != null && cursor.moveToFirst()) {
-                    String cityName = cursor.getString(cursor.getColumnIndex(AddressDatabase.CITY_NAME));
-                    String streetName = cursor.getString(cursor.getColumnIndex(AddressDatabase.STREET_NAME));
-                    String streetNumber = cursor.getString(cursor.getColumnIndex(AddressDatabase.STREET_NUMBER));
-                    String postalCode = cursor.getString(cursor.getColumnIndex(AddressDatabase.POSTAL_CODE));
-                    Address address = new Address();
-                    address.city = cityName;
-                    address.postalCode = postalCode;
-                    address.streetName = streetName;
-                    address.streetNumber = streetNumber;
-                    onDbRequestCallback.setData(address);
+                    ArrayList<Address> list = new ArrayList<>();
+                    do {
+                        String cityName = cursor.getString(cursor.getColumnIndex(AddressDatabase.CITY_NAME));
+                        String streetName = cursor.getString(cursor.getColumnIndex(AddressDatabase.STREET_NAME));
+                        String streetNumber = cursor.getString(cursor.getColumnIndex(AddressDatabase.STREET_NUMBER));
+                        String postalCode = cursor.getString(cursor.getColumnIndex(AddressDatabase.POSTAL_CODE));
+                        Address address = new Address();
+                        address.city = cityName;
+                        address.postalCode = postalCode;
+                        address.streetName = streetName;
+                        address.streetNumber = streetNumber;
+                        list.add(address);
+                    } while (cursor.moveToNext());
+                    onDbRequestCallback.setData(list);
                 } else {
                     onDbRequestCallback.setData(null);
                 }
