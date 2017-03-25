@@ -27,7 +27,7 @@ public class AddressFetchImpl implements AddressListContract.AddressFetcher {
             @Override
             protected void onPostExecute(Cursor cursor) {
                 super.onPostExecute(cursor);
-                if (cursor != null && cursor.moveToFirst()) {
+                if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst()) {
                     ArrayList<Address> list = new ArrayList<>();
                     do {
                         String cityName = cursor.getString(cursor.getColumnIndex(AddressDatabase.CITY_NAME));
@@ -44,6 +44,9 @@ public class AddressFetchImpl implements AddressListContract.AddressFetcher {
                     onDbRequestCallback.setData(list);
                 } else {
                     onDbRequestCallback.setData(null);
+                }
+                if (cursor != null) {
+                    cursor.close();
                 }
             }
         }.execute();

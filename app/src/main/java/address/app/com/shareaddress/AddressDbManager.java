@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import static address.app.com.shareaddress.AddressDatabase.CITY_NAME;
 import static address.app.com.shareaddress.AddressDatabase.POSTAL_CODE;
@@ -32,13 +31,13 @@ public class AddressDbManager {
         dbHelper.close();
     }
 
-    boolean insertCity(String city, String street, String number, String postcode) {
+    boolean insertCity(Address address) {
         open();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(CITY_NAME, city);
-        contentValues.put(AddressDatabase.STREET_NAME, street);
-        contentValues.put(AddressDatabase.STREET_NUMBER, number);
-        contentValues.put(AddressDatabase.POSTAL_CODE, postcode);
+        contentValues.put(CITY_NAME, address.getCity());
+        contentValues.put(AddressDatabase.STREET_NAME, address.getStreetName());
+        contentValues.put(AddressDatabase.STREET_NUMBER, address.getStreetNumber());
+        contentValues.put(AddressDatabase.POSTAL_CODE, address.getPostalCode());
         database.insert(AddressDatabase.ADDRESS_TABLE_NAME, null, contentValues);
         close();
         return true;

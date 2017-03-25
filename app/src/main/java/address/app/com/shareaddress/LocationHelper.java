@@ -11,7 +11,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.AppCompatEditText;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -32,7 +31,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
@@ -43,16 +41,16 @@ import static android.app.Activity.RESULT_OK;
 
 class LocationHelper implements GoogleApiClient.ConnectionCallbacks, OnMapReadyCallback, LocationListener, ResultCallback {
 
-    private Marker mCurrLocationMarker;
-    private Location mLastLocation;
     private LocationRequest mLocationRequest;
-    GoogleApiClient mGoogleApiClient;
+
+    private GoogleApiClient googleApiClient;
     private GoogleMap map;
-    String place, street, number, postcode;
+
+    private String cityName, streetName, streetNumber, postcode;
     private AddressFormActivity activity;
 
-    LocationHelper(AddressFormActivity acivity) {
-        this.activity = acivity;
+    LocationHelper(AddressFormActivity activity) {
+        this.activity = activity;
     }
 
     @Override
@@ -64,7 +62,7 @@ class LocationHelper implements GoogleApiClient.ConnectionCallbacks, OnMapReadyC
         if (ContextCompat.checkSelfPermission(activity,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, mLocationRequest, this);
         }
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
@@ -72,7 +70,7 @@ class LocationHelper implements GoogleApiClient.ConnectionCallbacks, OnMapReadyC
         builder.setAlwaysShow(true);
         PendingResult<LocationSettingsResult> result =
                 LocationServices.SettingsApi.checkLocationSettings(
-                        mGoogleApiClient,
+                        googleApiClient,
                         builder.build()
                 );
         result.setResultCallback(this);
@@ -115,16 +113,14 @@ class LocationHelper implements GoogleApiClient.ConnectionCallbacks, OnMapReadyC
 
     @Override
     public void onLocationChanged(Location location) {
-        mLastLocation = location;
-        setAddressFields(mLastLocation);
+        setAddressFields(location);
         //Place current location marker
         LatLng latLng = new LatLng(getLatitudeValue(location), getLongitudeValue(location));
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         markerOptions.title("Current Position");
         markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-        mCurrLocationMarker = map.addMarker(markerOptions);
-
+        map.addMarker(markerOptions);
         map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         map.animateCamera(CameraUpdateFactory.zoomTo(11));
     }
@@ -175,11 +171,11 @@ class LocationHelper implements GoogleApiClient.ConnectionCallbacks, OnMapReadyC
     }
 
     synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(activity)
+        googleApiClient = new GoogleApiClient.Builder(activity)
                 .addConnectionCallbacks(this)
                 .addApi(LocationServices.API)
                 .build();
-        mGoogleApiClient.connect();
+        googleApiClient.connect();
     }
 
     private void setAddressFields(Location location) {
@@ -187,14 +183,11 @@ class LocationHelper implements GoogleApiClient.ConnectionCallbacks, OnMapReadyC
         List<android.location.Address> address;
         try {
             address = geocoder.getFromLocation(getLatitudeValue(location), getLongitudeValue(location), 1);
-            place = getCityName(address);
-            street = getStreetName(address);
-            number = getStreetNumber(address);
+            cityName = getCityName(address);
+            streetName = getStreetName(address);
+            streetNumber = getStreetNumber(address);
             postcode = getPostalCode(address);
-            ((AppCompatEditText) activity.findViewById(R.id.place_name)).setText(place);
-            ((AppCompatEditText) activity.findViewById(R.id.postcode_name)).setText(postcode);
-            ((AppCompatEditText) activity.findViewById(R.id.street_number)).setText(number);
-            ((AppCompatEditText) activity.findViewById(R.id.street_name)).setText(street);
+            activity.updateAddress(new Address(cityName, streetName, streetNumber, postcode));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -241,10 +234,47 @@ class LocationHelper implements GoogleApiClient.ConnectionCallbacks, OnMapReadyC
                     // TODO: Consider calling
                     return;
                 }
-                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, mLocationRequest, this);
             } else {
                 Toast.makeText(activity, "GPS is not enabled", Toast.LENGTH_LONG).show();
             }
         }
     }
+
+    GoogleApiClient getGoogleApiClient() {
+        return googleApiClient;
+    }
+
+    String getCityName() {
+        return cityName;
+    }
+
+    void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+
+    String getStreetNumber() {
+        return streetNumber;
+    }
+
+    void setStreetNumber(String streetNumber) {
+        this.streetNumber = streetNumber;
+    }
+
+    String getStreetName() {
+        return streetName;
+    }
+
+    void setStreetName(String streetName) {
+        this.streetName = streetName;
+    }
+
+    String getPostcode() {
+        return postcode;
+    }
+
+    void setPostcode(String postcode) {
+        this.postcode = postcode;
+    }
+
 }

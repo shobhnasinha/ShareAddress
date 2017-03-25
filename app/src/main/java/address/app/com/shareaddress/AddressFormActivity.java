@@ -7,7 +7,10 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -15,6 +18,7 @@ public class AddressFormActivity extends AppCompatActivity {
 
     AddressDbManager db;
     private LocationHelper helper;
+    AppCompatEditText place, street, number, postcode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +33,75 @@ public class AddressFormActivity extends AppCompatActivity {
         }
         helper.checkLocationPermission();
         helper.inflateMapFragment();
+        place = (AppCompatEditText) findViewById(R.id.place_name);
+        street = (AppCompatEditText) findViewById(R.id.street_name);
+        postcode = (AppCompatEditText) findViewById(R.id.postcode_name);
+        number = (AppCompatEditText) findViewById(R.id.street_number);
+
+        place.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                helper.setCityName(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        street.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                helper.setStreetNumber(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        postcode.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                helper.setPostcode(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        number.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                helper.setStreetNumber(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     @Override
@@ -45,7 +118,7 @@ public class AddressFormActivity extends AppCompatActivity {
                 return true;
             case R.id.action_done: {
                 db = new AddressDbManager(this);
-                db.insertCity(helper.place, helper.street, helper.number, helper.postcode);
+                db.insertCity(new Address(helper.getCityName(), helper.getStreetName(), helper.getStreetNumber(), helper.getPostcode()));
                 onBackPressed();
             }
             default:
@@ -69,14 +142,21 @@ public class AddressFormActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        if(helper.mGoogleApiClient != null && helper.mGoogleApiClient.isConnected())
-        helper.mGoogleApiClient.disconnect();
+        if (helper.getGoogleApiClient() != null && helper.getGoogleApiClient().isConnected())
+            helper.getGoogleApiClient().disconnect();
         super.onStop();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         helper.onActivityResult(requestCode, resultCode, data);
+    }
+
+    void updateAddress(Address address) {
+        place.setText(address.city);
+        postcode.setText(address.postalCode);
+        number.setText(address.streetNumber);
+        street.setText(address.streetName);
     }
 }
 

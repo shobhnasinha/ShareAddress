@@ -6,11 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-    private Address data;
+    private ArrayList<Address> data;
     private ViewHolder viewHolder;
 
-    RecyclerViewAdapter(Address w) {
+    RecyclerViewAdapter(ArrayList<Address> w) {
         this.data = w;
     }
 
@@ -30,10 +32,10 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewH
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         if (data != null) {
-            viewHolder.cityName.setText(data.city);
-            viewHolder.postalCode.setText(data.postalCode);
-            viewHolder.streetName.setText(data.streetName);
-            viewHolder.streetNumber.setText(data.streetNumber);
+            viewHolder.cityName.setText(data.get(position).city);
+            viewHolder.postalCode.setText(data.get(position).postalCode);
+            viewHolder.streetName.setText(data.get(position).streetName);
+            viewHolder.streetNumber.setText(data.get(position).streetNumber);
         }
     }
 
@@ -46,10 +48,10 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewH
 
     @Override
     public int getItemCount() {
-        return data == null ? 0 : 1;
+        return data == null ? 0 : data.size();
     }
 
-    void setData(Address data) {
+    void setData(ArrayList<Address> data) {
         this.data = data;
     }
 }
